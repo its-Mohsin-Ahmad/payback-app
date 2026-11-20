@@ -2,7 +2,17 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../../theme/colors';
-import { Eye, EyeOff, MoreHorizontal, ArrowUpRight, ArrowDownLeft, ScanLine, ArrowDownToLine } from 'lucide-react-native';
+import {
+  Eye,
+  EyeOff,
+  MoreHorizontal,
+  ArrowUpRight,
+  ArrowDownLeft,
+  ScanLine,
+  ArrowDownToLine,
+  Plus,
+  ShieldCheck,
+} from 'lucide-react-native';
 
 interface BalanceCardProps {
   balance: number;
@@ -13,6 +23,8 @@ interface BalanceCardProps {
   onRequest: () => void;
   onPayment: () => void;
   onWithdraw: () => void;
+  onAddMoney?: () => void;
+  accountStatus?: string;
 }
 
 export const BalanceCard: React.FC<BalanceCardProps> = ({
@@ -24,6 +36,8 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
   onRequest,
   onPayment,
   onWithdraw,
+  onAddMoney,
+  accountStatus = 'Verified Active',
 }) => {
   return (
     <View style={styles.cardAnchor}>
@@ -45,9 +59,23 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
               )}
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={onOptions} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <MoreHorizontal size={20} color={Colors.darkForest} />
-          </TouchableOpacity>
+
+          <View style={styles.topRightControls}>
+            {onAddMoney && (
+              <TouchableOpacity
+                style={styles.addMoneyTopBtn}
+                activeOpacity={0.85}
+                onPress={onAddMoney}
+              >
+                <Plus size={14} color={Colors.darkForest} strokeWidth={3} />
+                <Text style={styles.addMoneyTopText}>Add Money</Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity onPress={onOptions} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <MoreHorizontal size={20} color={Colors.darkForest} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Balance Amount */}
@@ -57,12 +85,19 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
             : `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         </Text>
 
-        {/* Growth Tag matching reference image */}
-        <View style={styles.growthBadge}>
-          <Text style={styles.growthBadgeText}>↑ 24%  Last week</Text>
+        {/* Growth Tag & Account Status matching reference image */}
+        <View style={styles.metaRow}>
+          <View style={styles.growthBadge}>
+            <Text style={styles.growthBadgeText}>↑ 24%  Last week</Text>
+          </View>
+
+          <View style={styles.statusBadge}>
+            <ShieldCheck size={12} color={Colors.darkForest} />
+            <Text style={styles.statusBadgeText}>{accountStatus}</Text>
+          </View>
         </View>
 
-        {/* 4 Large Rounded Action Buttons inside Lime Card */}
+        {/* 4 Large Rounded Action Buttons inside Lime Card (Center Phone Parity) */}
         <View style={styles.actionRow}>
           <TouchableOpacity style={styles.actionItem} activeOpacity={0.85} onPress={onSend}>
             <View style={styles.iconCircle}>
@@ -121,6 +156,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+  topRightControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  addMoneyTopBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16, 27, 5, 0.12)',
+    borderRadius: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    gap: 4,
+  },
+  addMoneyTopText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: Colors.darkForest,
+  },
   balanceLabel: {
     fontSize: 13,
     fontWeight: '700',
@@ -134,18 +188,36 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     letterSpacing: -0.5,
   },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 20,
+  },
   growthBadge: {
-    alignSelf: 'flex-start',
     backgroundColor: Colors.darkForest,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    marginBottom: 20,
   },
   growthBadgeText: {
     fontSize: 11,
     fontWeight: '800',
     color: Colors.brightLime,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16, 27, 5, 0.12)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  statusBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: Colors.darkForest,
   },
   actionRow: {
     flexDirection: 'row',

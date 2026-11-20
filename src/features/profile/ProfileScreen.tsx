@@ -28,6 +28,7 @@ import {
 
 interface ProfileScreenProps {
   onLogout: () => void;
+  onResetToWelcome?: () => void;
   onNavigateToSecurity: () => void;
   onNavigateToSupport: () => void;
   onNavigateToStatements: () => void;
@@ -36,12 +37,13 @@ interface ProfileScreenProps {
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onLogout,
+  onResetToWelcome,
   onNavigateToSecurity,
   onNavigateToSupport,
   onNavigateToStatements,
   onNavigateToAbout,
 }) => {
-  const { user } = useAuthStore();
+  const { user, resetDemoToNewUser } = useAuthStore();
   const { account } = useBankStore();
 
   return (
@@ -135,6 +137,17 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <ChevronRight size={18} color={Colors.mutedGreen} />
           </TouchableOpacity>
         </View>
+
+        {/* Experience Demo Reset */}
+        <TouchableOpacity
+          style={styles.resetDemoBtn}
+          onPress={() => {
+            resetDemoToNewUser();
+            if (onResetToWelcome) onResetToWelcome();
+          }}
+        >
+          <Text style={styles.resetDemoBtnText}>✨ Replay Welcome &amp; Onboarding Journey</Text>
+        </TouchableOpacity>
 
         {/* Logout Button */}
         <TouchableOpacity style={styles.logoutBtn} onPress={onLogout}>
@@ -271,6 +284,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: Colors.textWhite,
+  },
+  resetDemoBtn: {
+    backgroundColor: Colors.cardGreen,
+    borderRadius: 18,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: Colors.borderLime,
+  },
+  resetDemoBtnText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: Colors.primaryLime,
   },
   logoutBtn: {
     flexDirection: 'row',

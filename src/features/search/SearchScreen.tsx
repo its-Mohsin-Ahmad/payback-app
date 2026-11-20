@@ -32,6 +32,7 @@ interface SearchScreenProps {
   onNavigateToGovernment: () => void;
   onNavigateToSavings: () => void;
   onNavigateToDonations: () => void;
+  onNavigateToServices?: () => void;
 }
 
 export const SearchScreen: React.FC<SearchScreenProps> = ({
@@ -41,6 +42,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
   onNavigateToGovernment,
   onNavigateToSavings,
   onNavigateToDonations,
+  onNavigateToServices,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 

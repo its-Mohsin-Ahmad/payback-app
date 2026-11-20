@@ -3,17 +3,22 @@ import { UserProfile } from '../types';
 
 interface AuthState {
   isAuthenticated: boolean;
-  isOnboarded: boolean;
+  isFirstTimeUser: boolean;
+  hasSeenWelcome: boolean;
+  hasCompletedOnboarding: boolean;
   user: UserProfile | null;
   isLoading: boolean;
   error: string | null;
 
   // Actions
-  setOnboarded: (val: boolean) => void;
+  setFirstTimeUser: (val: boolean) => void;
+  setSeenWelcome: (val: boolean) => void;
+  setCompletedOnboarding: (val: boolean) => void;
   login: (phoneNumberOrEmail: string, pin: string) => Promise<{ success: boolean; message?: string }>;
   biometricLogin: () => Promise<{ success: boolean; message?: string }>;
   register: (fullName: string, phoneNumber: string, email: string, pin: string, cnic: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
+  resetDemoToNewUser: () => void;
   updateProfile: (updated: Partial<UserProfile>) => void;
   toggleBiometrics: (enabled: boolean) => void;
 }
@@ -34,14 +39,24 @@ const DEFAULT_PROFILE: UserProfile = {
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
-  isAuthenticated: true, // Default authenticated to showcase the dashboard and cards immediately
-  isOnboarded: true,
+  isAuthenticated: false, // Start unauthenticated so Welcome & Onboarding flow is immediately active for new users!
+  isFirstTimeUser: true,
+  hasSeenWelcome: false,
+  hasCompletedOnboarding: false,
   user: DEFAULT_PROFILE,
   isLoading: false,
   error: null,
 
-  setOnboarded: (val: boolean) => {
-    set({ isOnboarded: val });
+  setFirstTimeUser: (val: boolean) => {
+    set({ isFirstTimeUser: val });
+  },
+
+  setSeenWelcome: (val: boolean) => {
+    set({ hasSeenWelcome: val });
+  },
+
+  setCompletedOnboarding: (val: boolean) => {
+    set({ hasCompletedOnboarding: val, isFirstTimeUser: false });
   },
 
   login: async (identifier, pin) => {
@@ -59,6 +74,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     set({
       isAuthenticated: true,
+      hasSeenWelcome: true,
+      hasCompletedOnboarding: true,
+      isFirstTimeUser: false,
       isLoading: false,
       user: DEFAULT_PROFILE,
     });
@@ -70,6 +88,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     await new Promise((r) => setTimeout(r, 400));
     set({
       isAuthenticated: true,
+      hasSeenWelcome: true,
+      hasCompletedOnboarding: true,
+      isFirstTimeUser: false,
       isLoading: false,
       user: DEFAULT_PROFILE,
     });
@@ -106,6 +127,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     set({
       isAuthenticated: true,
+      hasSeenWelcome: true,
+      hasCompletedOnboarding: true,
+      isFirstTimeUser: false,
       isLoading: false,
       user: newUser,
     });
@@ -114,6 +138,15 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     set({ isAuthenticated: false });
+  },
+
+  resetDemoToNewUser: () => {
+    set({
+      isAuthenticated: false,
+      isFirstTimeUser: true,
+      hasSeenWelcome: false,
+      hasCompletedOnboarding: false,
+    });
   },
 
   updateProfile: (updated) => {
