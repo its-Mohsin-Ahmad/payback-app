@@ -17,18 +17,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../../theme/colors';
 import { useBankStore } from '../../store/useBankStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { CustomNumericKeypad } from '../../components/common/CustomNumericKeypad';
+import { LimeGradientButton } from '../../components/common/LimeGradientButton';
 import {
   ArrowLeft,
   Bell,
   MoreHorizontal,
   Plus,
-  Delete,
   Check,
-  Building,
-  Smartphone,
-  CreditCard,
-  Hash,
-  ShieldCheck,
   Share2,
 } from 'lucide-react-native';
 
@@ -62,13 +58,11 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onGoBack }) => {
 
   // Keypad click handler
   const handleKeyPress = (val: string) => {
-    if (val === 'backspace') {
-      setAmountStr((prev) => (prev.length > 1 ? prev.slice(0, -1) : '0'));
-    } else if (val === 'clear') {
-      setAmountStr('0');
-    } else {
-      setAmountStr((prev) => (prev === '0' ? val : prev + val));
-    }
+    setAmountStr((prev) => (prev === '0' ? val : prev + val));
+  };
+
+  const handleBackspace = () => {
+    setAmountStr((prev) => (prev.length > 1 ? prev.slice(0, -1) : '0'));
   };
 
   // Hold-to-send animation
@@ -128,19 +122,14 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onGoBack }) => {
     holdProgress.setValue(0);
   };
 
-  const holdWidth = holdProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0%', '100%'],
-  });
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* 1. LIME-GREEN HEADER CARD (Exact recreation of left phone header in reference image) */}
+      {/* 1. LIME-GREEN HEADER CARD (Recreation of left phone header in reference image) */}
       <View style={styles.headerCardContainer}>
         <LinearGradient
-          colors={['#D9FF4D', '#C8F33A', '#BCE828']}
+          colors={Colors.gradients.balanceCard}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.headerCard}
@@ -174,7 +163,7 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onGoBack }) => {
 
               <View style={styles.accountBalanceBadge}>
                 <Text style={styles.accountBalanceText}>
-                  PKR {account.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ${account.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </Text>
               </View>
 
@@ -188,30 +177,30 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onGoBack }) => {
 
       {/* 2. BODY: Amount Display, Limits, Quick Send & Keypad (Deep Forest Background) */}
       <View style={styles.bodyContent}>
-        {/* Large Amount Display */}
+        {/* Large Amount Display matching reference image */}
         <View style={styles.amountDisplayArea}>
           <Text style={styles.amountText}>
-            PKR {parseFloat(amountStr || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ${parseFloat(amountStr || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </Text>
         </View>
 
-        {/* Transfer Limits Slider Indicator (Matching reference image) */}
+        {/* Transfer Limits Slider Indicator */}
         <View style={styles.limitContainer}>
           <View style={styles.limitHeaderRow}>
             <Text style={styles.limitLabel}>Transfer Limits</Text>
-            <Text style={styles.limitValue}>PKR 250,000.00</Text>
+            <Text style={styles.limitValue}>$10,000.00</Text>
           </View>
           <View style={styles.limitProgressBar}>
             <View
               style={[
                 styles.limitProgressFill,
-                { width: `${Math.min(100, (parsedAmount / 250000) * 100)}%` },
+                { width: `${Math.min(100, (parsedAmount / 10000) * 100)}%` },
               ]}
             />
           </View>
         </View>
 
-        {/* Quick Send Recipient Selector (Matching reference image) */}
+        {/* Quick Send Recipient Selector */}
         <View style={styles.quickSendHeaderRow}>
           <Text style={styles.quickSendTitle}>Quick Send</Text>
           <TouchableOpacity onPress={() => setIsCustomRecipientOpen(true)}>
@@ -254,72 +243,30 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onGoBack }) => {
           })}
         </View>
 
-        {/* Custom Numeric Keypad (Dark Green & Rounded, matching reference image) */}
-        <View style={styles.keypadGrid}>
-          {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
-            <TouchableOpacity
-              key={digit}
-              style={styles.keyButton}
-              activeOpacity={0.7}
-              onPress={() => handleKeyPress(digit)}
-            >
-              <Text style={styles.keyText}>{digit}</Text>
-            </TouchableOpacity>
-          ))}
+        {/* Reusable Custom Numeric Keypad */}
+        <CustomNumericKeypad
+          onKeyPress={handleKeyPress}
+          onBackspace={handleBackspace}
+          onConfirm={() => Alert.alert('Amount Set', `$${parsedAmount.toLocaleString()} ready to send.`)}
+        />
 
-          {/* Backspace */}
-          <TouchableOpacity
-            style={styles.keyButton}
-            activeOpacity={0.7}
-            onPress={() => handleKeyPress('backspace')}
-          >
-            <Delete size={22} color={Colors.textWhite} />
-          </TouchableOpacity>
-
-          {/* 0 */}
-          <TouchableOpacity
-            style={styles.keyButton}
-            activeOpacity={0.7}
-            onPress={() => handleKeyPress('0')}
-          >
-            <Text style={styles.keyText}>0</Text>
-          </TouchableOpacity>
-
-          {/* Check / Next */}
-          <TouchableOpacity
-            style={[styles.keyButton, styles.checkKeyButton]}
-            activeOpacity={0.7}
-            onPress={() => Alert.alert('Amount Set', `PKR ${parsedAmount.toLocaleString()} ready to send.`)}
-          >
-            <Check size={22} color={Colors.primaryLime} strokeWidth={3} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Curved Glowing "Hold To Send" Button (Matching reference image) */}
+        {/* Reusable Curved Glowing "Hold To Send" Button */}
         <View style={styles.holdButtonAnchor}>
-          <TouchableOpacity
-            style={styles.holdButton}
-            activeOpacity={0.9}
+          <LimeGradientButton
+            label={isHolding ? 'Holding to Send...' : 'Hold To Send'}
             onPressIn={handleHoldStart}
             onPressOut={handleHoldEnd}
-          >
-            {/* Animated progress fill */}
-            <Animated.View style={[styles.holdProgressOverlay, { width: holdWidth }]} />
-
-            <Text style={styles.holdButtonText}>
-              {isHolding ? 'Holding to Authorize...' : 'Hold To Send'}
-            </Text>
-          </TouchableOpacity>
+            holdProgressAnim={holdProgress}
+          />
         </View>
       </View>
 
-      {/* Recipient Input Modal (For Bank, Raast, or CNIC transfer) */}
+      {/* Recipient Input Modal */}
       <Modal visible={isCustomRecipientOpen} transparent animationType="slide">
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>Select Transfer Destination</Text>
 
-            {/* Destination Type Pills */}
             <View style={styles.typeSelectorRow}>
               {(['wallet', 'bank', 'raast', 'cnic'] as const).map((type) => (
                 <TouchableOpacity
@@ -393,7 +340,7 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onGoBack }) => {
 
             <Text style={styles.receiptTitle}>Transfer Successful!</Text>
             <Text style={styles.receiptAmount}>
-              PKR {parsedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              ${parsedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </Text>
             <Text style={styles.receiptSub}>
               Sent to {customName.trim() || selectedContact?.name || 'Alina'}
@@ -409,12 +356,12 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onGoBack }) => {
                 <Text style={styles.receiptMetaVal}>{destinationType.toUpperCase()} Instant Rail</Text>
               </View>
               <View style={styles.receiptRow}>
-                <Text style={styles.receiptMetaKey}>Date & Time</Text>
+                <Text style={styles.receiptMetaKey}>Date &amp; Time</Text>
                 <Text style={styles.receiptMetaVal}>Today, {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
               </View>
               <View style={styles.receiptRow}>
                 <Text style={styles.receiptMetaKey}>Service Fee</Text>
-                <Text style={[styles.receiptMetaVal, { color: Colors.primaryLime }]}>PKR 0.00 (Free)</Text>
+                <Text style={[styles.receiptMetaVal, { color: Colors.primaryLime }]}>$0.00 (Free)</Text>
               </View>
             </View>
 
@@ -457,11 +404,6 @@ const styles = StyleSheet.create({
   headerCard: {
     borderRadius: 28,
     padding: 18,
-    shadowColor: Colors.brightLime,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 14,
-    elevation: 6,
   },
   headerTopRow: {
     flexDirection: 'row',
@@ -473,7 +415,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(16, 32, 0, 0.1)',
+    backgroundColor: 'rgba(16, 27, 5, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -637,61 +579,9 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: Colors.mutedGreen,
   },
-  keypadGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    rowGap: 10,
-  },
-  keyButton: {
-    width: (width - 40 - 24) / 3,
-    height: 52,
-    borderRadius: 16,
-    backgroundColor: Colors.cardGreen,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(200, 243, 58, 0.1)',
-  },
-  keyText: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: Colors.textWhite,
-  },
-  checkKeyButton: {
-    backgroundColor: Colors.cardGreen,
-    borderColor: Colors.borderLime,
-  },
   holdButtonAnchor: {
     marginTop: 10,
     alignItems: 'center',
-  },
-  holdButton: {
-    width: '100%',
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primaryLime,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: Colors.brightLime,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 14,
-    elevation: 8,
-  },
-  holdProgressOverlay: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    backgroundColor: '#A9E315',
-  },
-  holdButtonText: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: Colors.darkForest,
-    letterSpacing: 0.5,
   },
   modalBackdrop: {
     flex: 1,
@@ -724,7 +614,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.darkForest,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(200, 243, 58, 0.15)',
+    borderColor: 'rgba(213, 245, 74, 0.15)',
   },
   typePillActive: {
     backgroundColor: Colors.primaryLime,
@@ -756,7 +646,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     borderWidth: 1,
-    borderColor: 'rgba(200, 243, 58, 0.2)',
+    borderColor: 'rgba(213, 245, 74, 0.2)',
   },
   modalBtnRow: {
     flexDirection: 'row',

@@ -23,7 +23,7 @@ export const PaybackCard: React.FC<PaybackCardProps> = ({ card, onPress }) => {
       style={[styles.cardContainer, Colors.shadows.limeGlow]}
     >
       <LinearGradient
-        colors={card.isFrozen ? ['#2A3A1A', '#1C290E'] : ['#D9FF4D', '#C8F33A', '#AEE620']}
+        colors={card.isFrozen ? ['#263B0C', '#182807'] : Colors.gradients.cardLime}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.cardGradient}
@@ -33,7 +33,7 @@ export const PaybackCard: React.FC<PaybackCardProps> = ({ card, onPress }) => {
           <Svg width={CARD_WIDTH} height={CARD_HEIGHT} viewBox="0 0 340 210">
             <Path
               d="M-20,180 C80,120 180,240 360,110 L360,210 L-20,210 Z"
-              fill="rgba(16, 32, 0, 0.06)"
+              fill="rgba(16, 27, 5, 0.06)"
             />
             <Path
               d="M-20,90 C120,40 220,160 360,60 L360,0 L-20,0 Z"
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     right: 16,
     fontSize: 48,
     fontWeight: '900',
-    color: 'rgba(16, 32, 0, 0.05)',
+    color: 'rgba(16, 27, 5, 0.05)',
     letterSpacing: 4,
   },
   topRow: {

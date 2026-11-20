@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Colors } from '../../theme/colors';
-import { Home, CreditCard, QrCode, Clock, Search } from 'lucide-react-native';
+import { CenterScanButton } from '../common/CenterScanButton';
+import { Home, CreditCard, Clock, Search } from 'lucide-react-native';
 
 export type TabScreenType = 'home' | 'cards' | 'scan' | 'history' | 'search';
 
@@ -55,18 +56,8 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
           </Text>
         </TouchableOpacity>
 
-        {/* 3. CENTER QR SCANNER BUTTON (Elevated & Prominent as per reference image) */}
-        <View style={styles.centerButtonAnchor}>
-          <TouchableOpacity
-            style={styles.centerButton}
-            activeOpacity={0.9}
-            onPress={onOpenScanner}
-          >
-            <View style={styles.centerButtonInner}>
-              <QrCode size={26} color={Colors.brightLime} strokeWidth={2.4} />
-            </View>
-          </TouchableOpacity>
-        </View>
+        {/* 3. CENTER QR SCANNER BUTTON (Elevated above bar) */}
+        <CenterScanButton onPress={onOpenScanner} />
 
         {/* 4. HISTORY */}
         <TouchableOpacity
@@ -114,13 +105,14 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingHorizontal: 0,
     backgroundColor: 'transparent',
   },
   barSurface: {
     backgroundColor: Colors.primaryLime,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
@@ -129,9 +121,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     shadowColor: Colors.brightLime,
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 12,
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 14,
   },
   tabItem: {
     flex: 1,
@@ -145,7 +137,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   activeIndicator: {
-    backgroundColor: 'rgba(16, 32, 0, 0.12)',
+    backgroundColor: 'rgba(16, 27, 5, 0.12)',
   },
   tabLabel: {
     fontSize: 11,
@@ -157,35 +149,5 @@ const styles = StyleSheet.create({
   activeTabLabel: {
     fontWeight: '800',
     opacity: 1,
-  },
-  centerButtonAnchor: {
-    top: -20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 68,
-  },
-  centerButton: {
-    width: 62,
-    height: 62,
-    borderRadius: 31,
-    backgroundColor: Colors.primaryLime,
-    padding: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: Colors.darkForest,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 10,
-  },
-  centerButtonInner: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: Colors.darkForest,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: Colors.borderLime,
   },
 });

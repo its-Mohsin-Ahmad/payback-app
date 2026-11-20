@@ -11,12 +11,11 @@ import {
   TextInput,
   Dimensions,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '../../theme/colors';
 import { useBankStore } from '../../store/useBankStore';
-import { PaybackCard } from '../../components/cards/PaybackCard';
+import { FinancialCard } from '../../components/common/FinancialCard';
+import { QuickActionButton } from '../../components/common/QuickActionButton';
 import {
   ArrowLeft,
   Bell,
@@ -29,9 +28,9 @@ import {
   Gauge,
   ArrowDownToLine,
   ShieldCheck,
-  CreditCard,
-  Lock,
 } from 'lucide-react-native';
+
+const { width } = Dimensions.get('window');
 
 interface CardsScreenProps {
   onGoBack: () => void;
@@ -86,7 +85,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({
     },
     {
       id: 'loans',
-      label: 'Savings',
+      label: 'Loans',
       icon: HandCoins,
       action: onNavigateToSavings,
     },
@@ -126,7 +125,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({
     }
     updateCardLimit(val);
     setIsLimitModalOpen(false);
-    Alert.alert('Limit Updated', `Your daily spending limit is now PKR ${val.toLocaleString()}`);
+    Alert.alert('Limit Updated', `Your daily spending limit is now $${val.toLocaleString()}`);
   };
 
   const handleTopup = () => {
@@ -135,9 +134,9 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({
       Alert.alert('Invalid Amount', 'Please enter a valid topup amount.');
       return;
     }
-    addMoney(val, 'Linked Raast Bank Account');
+    addMoney(val, 'Linked Bank Account');
     setIsTopupModalOpen(false);
-    Alert.alert('Top Up Successful', `PKR ${val.toLocaleString()} added to your wallet card balance!`);
+    Alert.alert('Top Up Successful', `$${val.toLocaleString()} added to your wallet card balance!`);
   };
 
   return (
@@ -161,8 +160,8 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Virtual Card (Matching reference image right phone) */}
-        <PaybackCard card={card} onPress={() => setIsDetailsModalOpen(true)} />
+        {/* Reusable Financial VISA Card (Matching reference image right phone) */}
+        <FinancialCard card={card} onPress={() => setIsDetailsModalOpen(true)} />
 
         {/* Card Status & Limits summary pill */}
         <View style={styles.cardStatusCard}>
@@ -182,8 +181,8 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({
             />
           </View>
           <View style={styles.spendingMetaRow}>
-            <Text style={styles.spendingMeta}>Spent: PKR {card.currentSpend.toLocaleString()}</Text>
-            <Text style={styles.spendingMeta}>Limit: PKR {card.dailyLimit.toLocaleString()}</Text>
+            <Text style={styles.spendingMeta}>Spent: ${card.currentSpend.toLocaleString()}</Text>
+            <Text style={styles.spendingMeta}>Limit: ${card.dailyLimit.toLocaleString()}</Text>
           </View>
         </View>
 
@@ -191,24 +190,15 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({
         <Text style={styles.sectionTitle}>Quick Actions</Text>
 
         <View style={styles.quickActionsGrid}>
-          {quickActions.map((item) => {
-            const IconComponent = item.icon;
-            return (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.actionSquare}
-                activeOpacity={0.8}
-                onPress={item.action}
-              >
-                <View style={styles.actionIconBox}>
-                  <IconComponent size={20} color={Colors.primaryLime} strokeWidth={2.2} />
-                </View>
-                <Text style={styles.actionLabel} numberOfLines={1}>
-                  {item.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+          {quickActions.map((item) => (
+            <QuickActionButton
+              key={item.id}
+              label={item.label}
+              icon={item.icon}
+              onPress={item.action}
+              widthFraction={4}
+            />
+          ))}
         </View>
 
         {/* Add Cards Action Button (Matching reference image) */}
@@ -218,7 +208,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({
           onPress={() =>
             Alert.alert(
               'Request Physical Debit Card',
-              'A customized contactless PAYBACK VISA debit card will be delivered to your registered residential address in Pakistan via secure courier within 3-5 business days.',
+              'A customized contactless PAYBACK VISA debit card will be delivered to your registered residential address via secure courier.',
               [
                 { text: 'Cancel', style: 'cancel' },
                 { text: 'Confirm Delivery', onPress: () => Alert.alert('Request Received', 'Your physical card tracking number is TCS-PK-981420') },
@@ -241,7 +231,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({
             </Text>
 
             <View style={styles.modalInputWrapper}>
-              <Text style={styles.modalInputLabel}>Daily Limit (PKR)</Text>
+              <Text style={styles.modalInputLabel}>Daily Limit ($)</Text>
               <TextInput
                 style={styles.modalTextInput}
                 keyboardType="number-pad"
@@ -276,7 +266,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({
             </Text>
 
             <View style={styles.modalInputWrapper}>
-              <Text style={styles.modalInputLabel}>Deposit Amount (PKR)</Text>
+              <Text style={styles.modalInputLabel}>Deposit Amount ($)</Text>
               <TextInput
                 style={styles.modalTextInput}
                 keyboardType="number-pad"
@@ -447,32 +437,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     rowGap: 12,
   },
-  actionSquare: {
-    width: (width - 40 - 24) / 4,
-    backgroundColor: Colors.cardGreen,
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(200, 243, 58, 0.12)',
-  },
-  actionIconBox: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: Colors.darkForest,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-  },
-  actionLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: Colors.mutedGreen,
-    textAlign: 'center',
-  },
   addCardButton: {
     backgroundColor: Colors.primaryLime,
     height: 52,
@@ -537,7 +501,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     borderWidth: 1,
-    borderColor: 'rgba(200, 243, 58, 0.2)',
+    borderColor: 'rgba(213, 245, 74, 0.2)',
   },
   modalBtnRow: {
     flexDirection: 'row',
