@@ -6,7 +6,7 @@ interface PaybackLogoProps {
   size?: number;
   showText?: boolean;
   showTagline?: boolean;
-  theme?: 'dark' | 'light';
+  theme?: 'dark' | 'lime' | 'light';
   glow?: boolean;
 }
 
@@ -14,17 +14,16 @@ export const PaybackLogo: React.FC<PaybackLogoProps> = ({
   size = 48,
   showText = true,
   showTagline = false,
-  theme = 'light',
+  theme = 'dark',
   glow = false,
 }) => {
   const isDark = theme === 'dark';
-  const textColor = isDark ? Colors.white : Colors.primaryNavy;
-  const taglineColor = isDark ? Colors.secondaryText : Colors.secondaryText;
+  const textColor = isDark ? Colors.primaryLime : Colors.darkForest;
+  const taglineColor = isDark ? Colors.mutedGreen : Colors.secondaryGreen;
   const scale = size / 48;
 
-  // The logo has an aspect ratio of roughly 1 : 1.2
   const logoWidth = size;
-  const logoHeight = size * 1.2;
+  const logoHeight = size * 1.1;
 
   return (
     <View style={styles.container}>
@@ -42,7 +41,7 @@ export const PaybackLogo: React.FC<PaybackLogoProps> = ({
             PAYBACK
           </Text>
           {showTagline && (
-            <Text style={[styles.tagline, { color: taglineColor, fontSize: 12 * Math.max(0.8, scale) }]}>
+            <Text style={[styles.tagline, { color: taglineColor, fontSize: 11 * Math.max(0.8, scale) }]}>
               Banking Built Around You.
             </Text>
           )}
@@ -62,7 +61,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   glowEffect: {
-    shadowColor: '#2BB8A8',
+    shadowColor: Colors.brightLime,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 18,
@@ -70,15 +69,17 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 6,
   },
   title: {
-    fontWeight: '800',
-    letterSpacing: 2,
+    fontFamily: 'System',
+    fontWeight: '900',
+    letterSpacing: 2.5,
   },
   tagline: {
-    fontWeight: '500',
-    marginTop: 2,
+    fontFamily: 'System',
+    fontWeight: '600',
+    marginTop: 3,
     letterSpacing: 0.5,
   },
 });

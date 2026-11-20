@@ -9,150 +9,138 @@ import {
   Image,
   Alert,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Colors } from '../../theme/colors';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useBankStore } from '../../store/useBankStore';
 import {
-  User,
-  Shield,
-  Bell,
-  HelpCircle,
-  Info,
+  ArrowLeft,
+  ShieldCheck,
+  CreditCard,
+  Lock,
+  Headphones,
+  FileText,
   LogOut,
   ChevronRight,
-  Edit3,
+  Landmark,
+  FileCheck,
 } from 'lucide-react-native';
 
 interface ProfileScreenProps {
   onLogout: () => void;
-  onNavigateToNotifications: () => void;
+  onNavigateToSecurity: () => void;
   onNavigateToSupport: () => void;
+  onNavigateToStatements: () => void;
+  onNavigateToAbout: () => void;
 }
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onLogout,
-  onNavigateToNotifications,
+  onNavigateToSecurity,
   onNavigateToSupport,
+  onNavigateToStatements,
+  onNavigateToAbout,
 }) => {
   const { user } = useAuthStore();
-
-  const handleEditProfile = () => {
-    Alert.alert('Edit Profile', 'Profile editing is enabled for verified members.');
-  };
-
-  const handleSecuritySettings = () => {
-    Alert.alert(
-      'Security Settings',
-      'Biometric authentication, two-factor authentication (2FA), and device management are active.'
-    );
-  };
-
-  const handleAboutPayback = () => {
-    Alert.alert(
-      'About PAYBACK',
-      'PAYBACK v1.0.0\nBanking Built Around You.\n\nA premium digital fintech ecosystem engineered for secure personal and corporate financial freedom.'
-    );
-  };
-
-  const menuItems = [
-    {
-      icon: User,
-      label: 'Edit Profile',
-      onPress: handleEditProfile,
-      color: Colors.electricBlue,
-    },
-    {
-      icon: Shield,
-      label: 'Security Settings',
-      onPress: handleSecuritySettings,
-      color: '#10B981',
-    },
-    {
-      icon: Bell,
-      label: 'Notification Preferences',
-      onPress: onNavigateToNotifications,
-      color: '#F59E0B',
-    },
-    {
-      icon: HelpCircle,
-      label: 'Help & Support',
-      onPress: onNavigateToSupport,
-      color: '#8B5CF6',
-    },
-    {
-      icon: Info,
-      label: 'About PAYBACK',
-      onPress: handleAboutPayback,
-      color: Colors.secondaryNavy,
-    },
-  ];
+  const { account } = useBankStore();
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar style="light" />
+
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profile & Settings</Text>
+        <Text style={styles.headerTitle}>My Profile &amp; Account</Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {/* User Card (matching reference image) */}
-        <View style={styles.userCard}>
-          <View style={styles.avatarContainer}>
-            <Image
-              source={{
-                uri: user?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-              }}
-              style={styles.avatar}
-            />
-            <TouchableOpacity style={styles.editBadge} onPress={handleEditProfile} activeOpacity={0.8}>
-              <Edit3 size={12} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.userName}>{user?.fullName || 'Mohsin Ahmad'}</Text>
-          <Text style={styles.userEmail}>{user?.email || 'mohsin@email.com'}</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Profile Card */}
+        <View style={styles.profileHeroCard}>
+          <Image
+            source={{ uri: user?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200' }}
+            style={styles.avatar}
+          />
+          <Text style={styles.userName}>{user?.fullName || 'Janvis David'}</Text>
+          <Text style={styles.userHandle}>@{user?.username || 'janvisd'}</Text>
 
           <View style={styles.tierBadge}>
-            <Text style={styles.tierText}>{user?.accountTier || 'Premium Elite'}</Text>
+            <ShieldCheck size={14} color={Colors.darkForest} />
+            <Text style={styles.tierText}>{user?.accountTier || 'Premium Elite'} Verified</Text>
           </View>
         </View>
 
-        {/* Menu Items */}
+        {/* Account Details Box */}
+        <View style={styles.detailsCard}>
+          <Text style={styles.cardHeader}>Verified Account Limits (SBP)</Text>
+
+          <View style={styles.metaRow}>
+            <Text style={styles.metaKey}>Mobile Number</Text>
+            <Text style={styles.metaVal}>{user?.phoneNumber}</Text>
+          </View>
+
+          <View style={styles.metaRow}>
+            <Text style={styles.metaKey}>Nadra CNIC</Text>
+            <Text style={styles.metaVal}>{user?.cnicMasked}</Text>
+          </View>
+
+          <View style={styles.metaRow}>
+            <Text style={styles.metaKey}>IBAN</Text>
+            <Text style={styles.metaVal}>{account.iban}</Text>
+          </View>
+
+          <View style={styles.metaRow}>
+            <Text style={styles.metaKey}>Daily Transfer Limit</Text>
+            <Text style={styles.metaVal}>PKR {user?.dailyTransferLimit.toLocaleString()}</Text>
+          </View>
+
+          <View style={styles.metaRow}>
+            <Text style={styles.metaKey}>Monthly Limit</Text>
+            <Text style={styles.metaVal}>PKR {user?.monthlyTransferLimit.toLocaleString()}</Text>
+          </View>
+        </View>
+
+        {/* Settings Navigation Menu */}
+        <Text style={styles.sectionTitle}>Account Controls</Text>
+
         <View style={styles.menuContainer}>
-          {menuItems.map((item, index) => {
-            const IconComp = item.icon;
-            return (
-              <TouchableOpacity
-                key={index}
-                style={styles.menuRow}
-                onPress={item.onPress}
-                activeOpacity={0.7}
-              >
-                <View style={[styles.menuIconBox, { backgroundColor: item.color + '15' }]}>
-                  <IconComp size={20} color={item.color} />
-                </View>
-                <Text style={styles.menuLabel}>{item.label}</Text>
-                <ChevronRight size={18} color={Colors.secondaryText} />
-              </TouchableOpacity>
-            );
-          })}
+          <TouchableOpacity style={styles.menuItem} onPress={onNavigateToSecurity}>
+            <View style={styles.menuIconCircle}>
+              <Lock size={18} color={Colors.primaryLime} />
+            </View>
+            <Text style={styles.menuLabel}>Security Center &amp; MPIN</Text>
+            <ChevronRight size={18} color={Colors.mutedGreen} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={onNavigateToStatements}>
+            <View style={styles.menuIconCircle}>
+              <FileText size={18} color={Colors.primaryLime} />
+            </View>
+            <Text style={styles.menuLabel}>Account Statements &amp; Tax</Text>
+            <ChevronRight size={18} color={Colors.mutedGreen} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={onNavigateToSupport}>
+            <View style={styles.menuIconCircle}>
+              <Headphones size={18} color={Colors.primaryLime} />
+            </View>
+            <Text style={styles.menuLabel}>Help, Complaints &amp; Disputes</Text>
+            <ChevronRight size={18} color={Colors.mutedGreen} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={onNavigateToAbout}>
+            <View style={styles.menuIconCircle}>
+              <FileCheck size={18} color={Colors.primaryLime} />
+            </View>
+            <Text style={styles.menuLabel}>About PAYBACK &amp; Regulatory Disclosures</Text>
+            <ChevronRight size={18} color={Colors.mutedGreen} />
+          </TouchableOpacity>
         </View>
 
         {/* Logout Button */}
-        <TouchableOpacity
-          style={styles.logoutBtn}
-          onPress={() => {
-            Alert.alert('Logout', 'Are you sure you want to sign out?', [
-              { text: 'Cancel', style: 'cancel' },
-              { text: 'Logout', style: 'destructive', onPress: onLogout },
-            ]);
-          }}
-          activeOpacity={0.8}
-        >
-          <LogOut size={18} color={Colors.errorRed} />
-          <Text style={styles.logoutText}>Logout</Text>
+        <TouchableOpacity style={styles.logoutBtn} onPress={onLogout}>
+          <LogOut size={18} color="#FF6B6B" />
+          <Text style={styles.logoutBtnText}>Log Out from Wallet</Text>
         </TouchableOpacity>
-
-        <Text style={styles.versionFooter}>PAYBACK Android v1.0.0 (Build 1)</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -161,137 +149,143 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4F7FC',
+    backgroundColor: Colors.background,
   },
   header: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEF2F6',
-    backgroundColor: '#FFFFFF',
+    paddingTop: 12,
+    paddingBottom: 8,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: Colors.primaryNavy,
+    fontSize: 22,
+    fontWeight: '900',
+    color: Colors.textWhite,
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 24,
     paddingBottom: 40,
   },
-  userCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    paddingVertical: 24,
-    paddingHorizontal: 16,
+  profileHeroCard: {
+    backgroundColor: Colors.cardGreen,
+    borderRadius: 24,
+    padding: 22,
     alignItems: 'center',
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
-  },
-  avatarContainer: {
-    position: 'relative',
-    marginBottom: 12,
+    marginVertical: 14,
+    borderWidth: 1,
+    borderColor: Colors.borderLime,
   },
   avatar: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
-    borderWidth: 3,
-    borderColor: Colors.electricBlue,
-  },
-  editBadge: {
-    position: 'absolute',
-    bottom: 2,
-    right: 2,
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: Colors.electricBlue,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.primaryLime,
+    marginBottom: 10,
   },
   userName: {
-    fontSize: 19,
+    fontSize: 18,
     fontWeight: '800',
-    color: Colors.primaryNavy,
+    color: Colors.textWhite,
   },
-  userEmail: {
-    fontSize: 13,
-    color: Colors.secondaryText,
+  userHandle: {
+    fontSize: 12,
+    color: Colors.mutedGreen,
     marginTop: 2,
   },
   tierBadge: {
-    backgroundColor: 'rgba(8, 120, 249, 0.08)',
-    paddingHorizontal: 14,
-    paddingVertical: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: Colors.primaryLime,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: 14,
-    marginTop: 10,
+    marginTop: 12,
   },
   tierText: {
-    color: Colors.electricBlue,
     fontSize: 11,
+    fontWeight: '900',
+    color: Colors.darkForest,
+  },
+  detailsCard: {
+    backgroundColor: Colors.cardGreen,
+    borderRadius: 22,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: Colors.borderLime,
+    marginBottom: 20,
+    gap: 12,
+  },
+  cardHeader: {
+    fontSize: 12,
     fontWeight: '700',
-    letterSpacing: 0.5,
+    color: Colors.mutedGreen,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  metaKey: {
+    fontSize: 12,
+    color: Colors.mutedGreen,
+  },
+  metaVal: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.textWhite,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: Colors.textWhite,
+    marginBottom: 12,
   },
   menuContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    backgroundColor: Colors.cardGreen,
+    borderRadius: 22,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: Colors.borderLime,
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
   },
-  menuRow: {
+  menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#F8FAFC',
+    borderBottomColor: 'rgba(200, 243, 58, 0.08)',
   },
-  menuIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+  menuIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.darkForest,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
   },
   menuLabel: {
     flex: 1,
-    fontSize: 15,
-    fontWeight: '600',
-    color: Colors.primaryNavy,
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.textWhite,
   },
   logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    borderWidth: 1.5,
-    borderColor: Colors.errorRed,
-    borderRadius: 24,
-    paddingVertical: 13,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.darkForest,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 107, 107, 0.3)',
   },
-  logoutText: {
-    color: Colors.errorRed,
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  versionFooter: {
-    textAlign: 'center',
-    fontSize: 11,
-    color: Colors.secondaryText,
-    marginTop: 20,
+  logoutBtnText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FF6B6B',
   },
 });

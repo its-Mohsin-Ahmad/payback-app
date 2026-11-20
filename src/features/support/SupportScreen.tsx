@@ -9,165 +9,130 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Colors } from '../../theme/colors';
 import {
   ArrowLeft,
+  Headphones,
+  MessageSquare,
+  HelpCircle,
+  FileQuestion,
   ChevronDown,
   ChevronUp,
-  MessageCircle,
-  Mail,
-  PhoneCall,
   Send,
-  HelpCircle,
 } from 'lucide-react-native';
 
 interface SupportScreenProps {
   onGoBack: () => void;
 }
 
-const FAQS = [
-  {
-    q: 'How do I freeze or unfreeze my PAYBACK card?',
-    a: 'Navigate to the "Cards" tab in the bottom menu. Toggle the "Freeze Card" switch at the top. The change takes effect instantly with zero downtime.',
-  },
-  {
-    q: 'Are money transfers to other banks instant?',
-    a: 'Yes, PAYBACK uses direct instant interbank settlement rails (1-LINK & RAAST). Your recipient will see the credit within seconds.',
-  },
-  {
-    q: 'What are the daily transaction limits?',
-    a: 'Standard accounts have a PKR 100,000/day limit, while Premium Elite accounts enjoy up to PKR 500,000/day. You can customize your limit in Card Settings.',
-  },
-  {
-    q: 'How does PAYBACK protect my account security?',
-    a: 'We implement hardware-backed biometric verification, TLS 1.3 encryption, instant suspicious activity alerts, and strict multi-factor session validation.',
-  },
-];
-
 export const SupportScreen: React.FC<SupportScreenProps> = ({ onGoBack }) => {
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(0);
-  const [ticketSubject, setTicketSubject] = useState('');
-  const [ticketMessage, setTicketMessage] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const [complaintText, setComplaintText] = useState('');
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  const faqs = [
+    {
+      q: 'How do I send money via Raast Instant?',
+      a: 'Go to Send Money > Select Raast Destination. Enter the receiver Raast ID or registered mobile number. SBP Raast transfers are processed 24/7 with zero fees.',
+    },
+    {
+      q: 'What is the daily transaction limit for my account?',
+      a: 'As a verified Level-2 wallet holder in Pakistan, your daily transfer limit is PKR 250,000, and your monthly limit is PKR 1,500,000.',
+    },
+    {
+      q: 'How do I pay utility bills with zero fee?',
+      a: 'Navigate to Bills Pay, pick your electricity, gas, or water provider (e.g. LESCO, IESCO, SNGPL), enter your consumer reference, and confirm payment instantly.',
+    },
+    {
+      q: 'How does the PAYBACK virtual VISA card work?',
+      a: 'Your virtual card is linked directly to your wallet balance. You can freeze/unfreeze it anytime, set custom daily limits, and use it for online e-commerce shopping worldwide.',
+    },
+  ];
 
   const handleSubmitTicket = () => {
-    if (!ticketSubject.trim() || !ticketMessage.trim()) {
-      Alert.alert('Incomplete Form', 'Please enter both subject and message.');
+    if (!complaintText.trim()) {
+      Alert.alert('Required', 'Please enter your inquiry or transaction complaint details.');
       return;
     }
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setTicketSubject('');
-      setTicketMessage('');
-      Alert.alert('Ticket Submitted', 'Ticket #PB-84920 received. A priority agent will respond shortly.');
-    }, 800);
+    const ticketId = `TKT-PB-${Math.floor(100000 + Math.random() * 900000)}`;
+    Alert.alert(
+      'Support Ticket Registered',
+      `Your support ticket ${ticketId} has been escalated to our Priority Resolution Desk. A response will be dispatched via SMS & Email within 15 minutes.`
+    );
+    setComplaintText('');
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar style="light" />
+
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={onGoBack} style={styles.backBtn}>
-          <ArrowLeft size={22} color={Colors.primaryNavy} />
+        <TouchableOpacity onPress={onGoBack} style={styles.circleBtn}>
+          <ArrowLeft size={20} color={Colors.primaryLime} strokeWidth={2.5} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Help & Support</Text>
-        <View style={{ width: 40 }} />
+        <Text style={styles.headerTitle}>Help &amp; Complaints</Text>
+        <View style={{ width: 38 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {/* Quick Contact Options */}
-        <View style={styles.quickContactRow}>
-          <TouchableOpacity
-            style={styles.contactCard}
-            onPress={() => Alert.alert('Live Chat', 'Connecting to 24/7 Priority Support concierge...')}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.contactIcon, { backgroundColor: '#E0F2FE' }]}>
-              <MessageCircle size={22} color={Colors.electricBlue} />
-            </View>
-            <Text style={styles.contactTitle}>Live Chat</Text>
-            <Text style={styles.contactSub}>24/7 Available</Text>
-          </TouchableOpacity>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.banner}>
+          <Headphones size={28} color={Colors.primaryLime} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.bannerTitle}>24/7 Priority Support Desk</Text>
+            <Text style={styles.bannerSub}>
+              Helpline: 042-111-PAYBACK (729222) • Dedicated SBP Banking Ombudsman Desk.
+            </Text>
+          </View>
+        </View>
 
-          <TouchableOpacity
-            style={styles.contactCard}
-            onPress={() => Alert.alert('Email Support', 'Direct inquiries: support@payback.fintech')}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.contactIcon, { backgroundColor: '#ECFDF5' }]}>
-              <Mail size={22} color="#10B981" />
-            </View>
-            <Text style={styles.contactTitle}>Email Us</Text>
-            <Text style={styles.contactSub}>&lt; 2hr Response</Text>
-          </TouchableOpacity>
+        {/* Submit Complaint Box */}
+        <Text style={styles.sectionTitle}>Submit a Complaint or Inquiry</Text>
 
-          <TouchableOpacity
-            style={styles.contactCard}
-            onPress={() => Alert.alert('Helpline', 'Toll-free 24/7: 0800-PAYBACK (729222)')}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.contactIcon, { backgroundColor: '#FEF3C7' }]}>
-              <PhoneCall size={22} color="#D97706" />
-            </View>
-            <Text style={styles.contactTitle}>Helpline</Text>
-            <Text style={styles.contactSub}>Toll-free</Text>
+        <View style={styles.ticketCard}>
+          <Text style={styles.ticketLabel}>Describe your issue / transaction reference</Text>
+          <TextInput
+            style={styles.ticketInput}
+            multiline
+            numberOfLines={4}
+            placeholder="e.g. Transaction Ref CJ4901TUZ0 delayed, bill payment query, or card authorization help..."
+            placeholderTextColor={Colors.mutedGreen}
+            value={complaintText}
+            onChangeText={setComplaintText}
+          />
+
+          <TouchableOpacity style={styles.submitBtn} onPress={handleSubmitTicket}>
+            <Send size={16} color={Colors.darkForest} />
+            <Text style={styles.submitBtnText}>Submit Priority Ticket</Text>
           </TouchableOpacity>
         </View>
 
-        {/* FAQs */}
-        <Text style={styles.sectionHeading}>Frequently Asked Questions</Text>
+        {/* Frequently Asked Questions */}
+        <Text style={styles.sectionTitle}>Frequently Asked Questions</Text>
+
         <View style={styles.faqList}>
-          {FAQS.map((faq, index) => {
-            const isExpanded = expandedFaq === index;
+          {faqs.map((f, i) => {
+            const isOpen = openFaq === i;
             return (
               <TouchableOpacity
-                key={index}
-                style={styles.faqItem}
-                onPress={() => setExpandedFaq(isExpanded ? null : index)}
+                key={i}
+                style={styles.faqCard}
                 activeOpacity={0.85}
+                onPress={() => setOpenFaq(isOpen ? null : i)}
               >
-                <View style={styles.faqQuestionRow}>
-                  <Text style={styles.faqQuestion}>{faq.q}</Text>
-                  {isExpanded ? (
-                    <ChevronUp size={18} color={Colors.electricBlue} />
+                <View style={styles.faqHeader}>
+                  <Text style={styles.faqQuestion}>{f.q}</Text>
+                  {isOpen ? (
+                    <ChevronUp size={18} color={Colors.primaryLime} />
                   ) : (
-                    <ChevronDown size={18} color={Colors.secondaryText} />
+                    <ChevronDown size={18} color={Colors.mutedGreen} />
                   )}
                 </View>
-                {isExpanded && <Text style={styles.faqAnswer}>{faq.a}</Text>}
+
+                {isOpen && <Text style={styles.faqAnswer}>{f.a}</Text>}
               </TouchableOpacity>
             );
           })}
-        </View>
-
-        {/* Submit Ticket */}
-        <Text style={styles.sectionHeading}>Send a Support Request</Text>
-        <View style={styles.ticketCard}>
-          <TextInput
-            style={styles.ticketInput}
-            placeholder="Subject / Issue Summary"
-            placeholderTextColor="#94A3B8"
-            value={ticketSubject}
-            onChangeText={setTicketSubject}
-          />
-          <TextInput
-            style={[styles.ticketInput, styles.ticketTextarea]}
-            placeholder="Describe your issue or feedback in detail..."
-            placeholderTextColor="#94A3B8"
-            value={ticketMessage}
-            onChangeText={setTicketMessage}
-            multiline
-            numberOfLines={4}
-          />
-          <TouchableOpacity
-            style={[styles.submitBtn, Colors.shadows.button]}
-            onPress={handleSubmitTicket}
-            activeOpacity={0.88}
-          >
-            <Send size={16} color="#FFFFFF" />
-            <Text style={styles.submitBtnText}>Submit Request</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -175,126 +140,131 @@ export const SupportScreen: React.FC<SupportScreenProps> = ({ onGoBack }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F4F7FC' },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEF2F6',
+    paddingTop: 10,
+    paddingBottom: 8,
   },
-  backBtn: {
+  circleBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.cardGreen,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.borderLime,
   },
-  headerTitle: { fontSize: 18, fontWeight: '800', color: Colors.primaryNavy },
-  scrollContent: { paddingHorizontal: 20, paddingVertical: 20, paddingBottom: 40 },
-  quickContactRow: {
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: Colors.textWhite,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  banner: {
+    backgroundColor: Colors.cardGreen,
+    borderRadius: 20,
+    padding: 16,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-    marginBottom: 24,
-  },
-  contactCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 16,
+    gap: 14,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: Colors.borderLime,
+    marginVertical: 14,
   },
-  contactIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
+  bannerTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: Colors.textWhite,
   },
-  contactTitle: { fontSize: 13, fontWeight: '700', color: Colors.primaryNavy },
-  contactSub: { fontSize: 10, color: Colors.secondaryText, marginTop: 2 },
-  sectionHeading: {
+  bannerSub: {
+    fontSize: 11,
+    color: Colors.mutedGreen,
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: Colors.primaryNavy,
+    color: Colors.textWhite,
     marginBottom: 12,
   },
-  faqList: { gap: 10, marginBottom: 24 },
-  faqItem: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.02,
-    shadowRadius: 6,
-    elevation: 1,
-  },
-  faqQuestionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  faqQuestion: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: '700',
-    color: Colors.primaryNavy,
-    marginRight: 10,
-  },
-  faqAnswer: {
-    fontSize: 13,
-    color: Colors.secondaryText,
-    marginTop: 10,
-    lineHeight: 19,
-  },
   ticketCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    gap: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
+    backgroundColor: Colors.cardGreen,
+    borderRadius: 22,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: Colors.borderLime,
+    marginBottom: 20,
+  },
+  ticketLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.mutedGreen,
+    marginBottom: 8,
   },
   ticketInput: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    height: 48,
-    fontSize: 14,
-    color: Colors.primaryNavy,
+    backgroundColor: Colors.darkForest,
+    borderRadius: 14,
+    padding: 14,
+    height: 90,
+    color: Colors.textWhite,
+    fontSize: 13,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  ticketTextarea: {
-    height: 100,
-    paddingTop: 12,
+    borderColor: 'rgba(200, 243, 58, 0.15)',
     textAlignVertical: 'top',
+    marginBottom: 14,
   },
   submitBtn: {
-    backgroundColor: Colors.electricBlue,
+    backgroundColor: Colors.primaryLime,
     height: 48,
     borderRadius: 24,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginTop: 4,
   },
   submitBtnText: {
-    color: '#FFFFFF',
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '900',
+    color: Colors.darkForest,
+  },
+  faqList: {
+    gap: 12,
+  },
+  faqCard: {
+    backgroundColor: Colors.cardGreen,
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: Colors.borderLime,
+  },
+  faqHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  faqQuestion: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: Colors.textWhite,
+    flex: 1,
+    marginRight: 10,
+  },
+  faqAnswer: {
+    fontSize: 12,
+    color: Colors.mutedGreen,
+    lineHeight: 18,
+    marginTop: 10,
   },
 });

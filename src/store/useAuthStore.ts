@@ -7,104 +7,103 @@ interface AuthState {
   user: UserProfile | null;
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
   setOnboarded: (val: boolean) => void;
-  login: (email: string, pass: string) => Promise<{ success: boolean; message?: string }>;
+  login: (phoneNumberOrEmail: string, pin: string) => Promise<{ success: boolean; message?: string }>;
   biometricLogin: () => Promise<{ success: boolean; message?: string }>;
-  register: (fullName: string, email: string, pass: string) => Promise<{ success: boolean; message?: string }>;
+  register: (fullName: string, phoneNumber: string, email: string, pin: string, cnic: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   updateProfile: (updated: Partial<UserProfile>) => void;
   toggleBiometrics: (enabled: boolean) => void;
 }
 
-const DEFAULT_MOHSIN_PROFILE: UserProfile = {
-  id: 'usr_mohsin_01',
-  fullName: 'Mohsin Ahmad',
-  email: 'mohsin@email.com',
-  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-  phoneNumber: '+92 300 1234567',
+const DEFAULT_PROFILE: UserProfile = {
+  id: 'usr_janvis_01',
+  fullName: 'Janvis David',
+  username: 'janvisd',
+  email: 'janvis.david@payback.pk',
+  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200',
+  phoneNumber: '+92 300 8472910',
+  cnicMasked: '35201-•••••••-7',
   accountTier: 'Premium Elite',
   isBiometricEnabled: true,
-  memberSince: 'March 2024',
+  memberSince: 'January 2024',
+  dailyTransferLimit: 250000,
+  monthlyTransferLimit: 1500000,
 };
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  isAuthenticated: true, // Default active session as shown in dashboard reference
+export const useAuthStore = create<AuthState>((set) => ({
+  isAuthenticated: true, // Default authenticated to showcase the dashboard and cards immediately
   isOnboarded: true,
-  user: DEFAULT_MOHSIN_PROFILE,
+  user: DEFAULT_PROFILE,
   isLoading: false,
   error: null,
-  
+
   setOnboarded: (val: boolean) => {
     set({ isOnboarded: val });
   },
-  
-  login: async (email, password) => {
+
+  login: async (identifier, pin) => {
     set({ isLoading: true, error: null });
-    // Simulate real auth delay with validation
-    await new Promise(r => setTimeout(r, 600));
-    
-    if (!email || !email.includes('@')) {
-      set({ isLoading: false, error: 'Please enter a valid email address.' });
-      return { success: false, message: 'Invalid email address.' };
+    await new Promise((r) => setTimeout(r, 600));
+
+    if (!identifier || identifier.trim().length < 4) {
+      set({ isLoading: false, error: 'Please enter a valid mobile number or email.' });
+      return { success: false, message: 'Invalid identifier.' };
     }
-    if (!password || password.length < 6) {
-      set({ isLoading: false, error: 'Password must be at least 6 characters.' });
-      return { success: false, message: 'Password too short.' };
+    if (!pin || pin.length < 4) {
+      set({ isLoading: false, error: 'MPIN/Password must be at least 4 digits.' });
+      return { success: false, message: 'Invalid PIN.' };
     }
-    
+
     set({
       isAuthenticated: true,
       isLoading: false,
-      user: {
-        ...DEFAULT_MOHSIN_PROFILE,
-        email,
-        fullName: email.split('@')[0].replace('.', ' ').toUpperCase(),
-      }
+      user: DEFAULT_PROFILE,
     });
     return { success: true };
   },
-  
+
   biometricLogin: async () => {
     set({ isLoading: true });
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 400));
     set({
       isAuthenticated: true,
       isLoading: false,
-      user: DEFAULT_MOHSIN_PROFILE,
+      user: DEFAULT_PROFILE,
     });
     return { success: true };
   },
-  
-  register: async (fullName, email, password) => {
+
+  register: async (fullName, phoneNumber, email, pin, cnic) => {
     set({ isLoading: true, error: null });
-    await new Promise(r => setTimeout(r, 800));
-    
+    await new Promise((r) => setTimeout(r, 800));
+
     if (!fullName.trim()) {
       set({ isLoading: false, error: 'Full name is required.' });
       return { success: false, message: 'Full name required.' };
     }
-    if (!email.includes('@')) {
-      set({ isLoading: false, error: 'Valid email is required.' });
-      return { success: false, message: 'Invalid email.' };
+    if (!phoneNumber.trim()) {
+      set({ isLoading: false, error: 'Mobile number is required.' });
+      return { success: false, message: 'Mobile number required.' };
     }
-    if (password.length < 6) {
-      set({ isLoading: false, error: 'Password must be at least 6 characters.' });
-      return { success: false, message: 'Password must be at least 6 characters.' };
-    }
-    
+
     const newUser: UserProfile = {
       id: `usr_${Date.now()}`,
       fullName,
-      email,
-      avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
-      phoneNumber: '+92 300 0000000',
-      accountTier: 'Standard',
-      isBiometricEnabled: false,
-      memberSince: 'Just now',
+      username: fullName.toLowerCase().replace(/\s+/g, '_'),
+      email: email || 'user@payback.pk',
+      avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200',
+      phoneNumber,
+      cnicMasked: cnic ? `${cnic.slice(0, 5)}-•••••••-${cnic.slice(-1)}` : '35201-•••••••-1',
+      accountTier: 'Basic Wallet',
+      isBiometricEnabled: true,
+      memberSince: 'November 2026',
+      dailyTransferLimit: 50000,
+      monthlyTransferLimit: 200000,
     };
-    
+
     set({
       isAuthenticated: true,
       isLoading: false,
@@ -112,22 +111,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     });
     return { success: true };
   },
-  
+
   logout: () => {
-    set({ isAuthenticated: false, user: null });
+    set({ isAuthenticated: false });
   },
-  
+
   updateProfile: (updated) => {
-    const cur = get().user;
-    if (cur) {
-      set({ user: { ...cur, ...updated } });
-    }
+    set((state) => ({
+      user: state.user ? { ...state.user, ...updated } : null,
+    }));
   },
-  
+
   toggleBiometrics: (enabled) => {
-    const cur = get().user;
-    if (cur) {
-      set({ user: { ...cur, isBiometricEnabled: enabled } });
-    }
-  }
+    set((state) => ({
+      user: state.user ? { ...state.user, isBiometricEnabled: enabled } : null,
+    }));
+  },
 }));

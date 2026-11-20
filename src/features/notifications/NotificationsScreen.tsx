@@ -1,108 +1,70 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
-  FlatList,
+  ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Colors } from '../../theme/colors';
 import { useBankStore } from '../../store/useBankStore';
-import {
-  ArrowLeft,
-  Bell,
-  ShieldAlert,
-  CreditCard,
-  Info,
-  CheckCheck,
-} from 'lucide-react-native';
-import { NotificationItem } from '../../types';
+import { ArrowLeft, Bell, Check, ShieldCheck, Tag } from 'lucide-react-native';
 
 interface NotificationsScreenProps {
   onGoBack: () => void;
 }
 
-type NotifFilter = 'all' | 'transactions' | 'security';
-
 export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onGoBack }) => {
   const { notifications, markNotificationAsRead, clearAllNotifications } = useBankStore();
-  const [filter, setFilter] = useState<NotifFilter>('all');
-
-  const filtered = notifications.filter((n) => {
-    if (filter === 'transactions') return n.type === 'transaction';
-    if (filter === 'security') return n.type === 'security';
-    return true;
-  });
-
-  const getIcon = (type: NotificationItem['type']) => {
-    switch (type) {
-      case 'transaction':
-        return <CreditCard size={18} color={Colors.electricBlue} />;
-      case 'security':
-        return <ShieldAlert size={18} color={Colors.errorRed} />;
-      default:
-        return <Info size={18} color="#8B5CF6" />;
-    }
-  };
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar style="light" />
+
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={onGoBack} style={styles.backBtn}>
-          <ArrowLeft size={22} color={Colors.primaryNavy} />
+        <TouchableOpacity onPress={onGoBack} style={styles.circleBtn}>
+          <ArrowLeft size={20} color={Colors.primaryLime} strokeWidth={2.5} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notifications</Text>
-        <TouchableOpacity onPress={clearAllNotifications} style={styles.clearBtn}>
-          <CheckCheck size={18} color={Colors.electricBlue} />
+        <TouchableOpacity style={styles.clearBtn} onPress={clearAllNotifications}>
+          <Text style={styles.clearBtnText}>Mark All Read</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Filter Tabs */}
-      <View style={styles.filterRow}>
-        {(['all', 'transactions', 'security'] as NotifFilter[]).map((f) => (
-          <TouchableOpacity
-            key={f}
-            onPress={() => setFilter(f)}
-            style={[styles.filterTab, filter === f && styles.filterTabActive]}
-          >
-            <Text style={[styles.filterTabText, filter === f && styles.filterTabTextActive]}>
-              {f.charAt(0).toUpperCase() + f.slice(1)}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* List */}
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.notifCard, !item.isRead && styles.unreadCard]}
-            onPress={() => markNotificationAsRead(item.id)}
-            activeOpacity={0.8}
-          >
-            <View style={styles.iconCircle}>{getIcon(item.type)}</View>
-            <View style={styles.notifBody}>
-              <View style={styles.titleRow}>
-                <Text style={styles.notifTitle}>{item.title}</Text>
-                {!item.isRead && <View style={styles.unreadDot} />}
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.notifList}>
+          {notifications.map((n) => (
+            <TouchableOpacity
+              key={n.id}
+              style={[styles.notifCard, !n.isRead && styles.unreadCard]}
+              activeOpacity={0.8}
+              onPress={() => markNotificationAsRead(n.id)}
+            >
+              <View style={styles.iconCircle}>
+                {n.type === 'transaction' ? (
+                  <Bell size={18} color={Colors.primaryLime} />
+                ) : n.type === 'security' ? (
+                  <ShieldCheck size={18} color={Colors.primaryLime} />
+                ) : (
+                  <Tag size={18} color={Colors.primaryLime} />
+                )}
               </View>
-              <Text style={styles.notifDesc}>{item.description}</Text>
-              <Text style={styles.notifTime}>{item.timestamp}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Bell size={40} color={Colors.secondaryText} opacity={0.5} />
-            <Text style={styles.emptyText}>No notifications here</Text>
-          </View>
-        }
-      />
+
+              <View style={styles.infoCol}>
+                <View style={styles.titleRow}>
+                  <Text style={styles.notifTitle}>{n.title}</Text>
+                  {!n.isRead && <View style={styles.unreadDot} />}
+                </View>
+                <Text style={styles.notifDesc}>{n.description}</Text>
+                <Text style={styles.notifTime}>{n.timestamp}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -110,135 +72,97 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onGoBa
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4F7FC',
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEF2F6',
+    paddingTop: 10,
+    paddingBottom: 8,
   },
-  backBtn: {
+  circleBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.cardGreen,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  clearBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#F0F9FF',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.borderLime,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: Colors.primaryNavy,
+    color: Colors.textWhite,
   },
-  filterRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    gap: 8,
+  clearBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
-  filterTab: {
-    paddingHorizontal: 16,
-    paddingVertical: 7,
-    borderRadius: 18,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  filterTabActive: {
-    backgroundColor: Colors.electricBlue,
-    borderColor: Colors.electricBlue,
-  },
-  filterTabText: {
+  clearBtnText: {
     fontSize: 12,
-    fontWeight: '600',
-    color: Colors.secondaryText,
+    fontWeight: '700',
+    color: Colors.primaryLime,
   },
-  filterTabTextActive: {
-    color: '#FFFFFF',
-  },
-  listContent: {
+  scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 24,
+    paddingVertical: 14,
+  },
+  notifList: {
+    gap: 12,
   },
   notifCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    backgroundColor: Colors.cardGreen,
+    borderRadius: 20,
     padding: 16,
-    marginBottom: 10,
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    shadowColor: '#000',
-    shadowOpacity: 0.02,
-    shadowRadius: 6,
-    elevation: 1,
+    gap: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(200, 243, 58, 0.12)',
   },
   unreadCard: {
-    borderLeftWidth: 3.5,
-    borderLeftColor: Colors.electricBlue,
-    backgroundColor: '#FAFCFF',
+    borderColor: Colors.primaryLime,
+    backgroundColor: 'rgba(38, 61, 8, 0.95)',
   },
   iconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#F1F5F9',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.darkForest,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
   },
-  notifBody: {
+  infoCol: {
     flex: 1,
   },
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 4,
   },
   notifTitle: {
     fontSize: 14,
-    fontWeight: '700',
-    color: Colors.primaryNavy,
+    fontWeight: '800',
+    color: Colors.textWhite,
   },
   unreadDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
-    backgroundColor: Colors.electricBlue,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.primaryLime,
   },
   notifDesc: {
-    fontSize: 13,
-    color: Colors.secondaryText,
-    marginTop: 4,
+    fontSize: 12,
+    color: Colors.mutedGreen,
     lineHeight: 18,
+    marginBottom: 6,
   },
   notifTime: {
-    fontSize: 11,
-    color: '#94A3B8',
-    marginTop: 6,
-    fontWeight: '500',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-    gap: 12,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: Colors.secondaryText,
-    fontWeight: '500',
+    fontSize: 10,
+    color: Colors.mutedGreen,
+    opacity: 0.8,
   },
 });

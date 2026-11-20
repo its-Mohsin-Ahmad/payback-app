@@ -5,25 +5,29 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#061735"
+      "backgroundColor": "#101C05"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.payback.mobile"
+      "bundleIdentifier": "com.payback.mobile",
+      "infoPlist": {
+        "NSCameraUsageDescription": "PAYBACK needs camera access to scan merchant and payment QR codes."
+      }
     },
     "android": {
       "package": "com.payback.mobile",
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#061735"
+        "backgroundColor": "#101C05"
       },
       "permissions": [
+        "CAMERA",
         "USE_BIOMETRIC",
         "USE_FINGERPRINT",
         "INTERNET",

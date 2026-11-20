@@ -1,68 +1,73 @@
 # Google Play Store Listing & Production Publishing Guide
+## PAYBACK — Banking Built Around You.
 
-## App Information
-- **Application Name**: PAYBACK: Digital Banking
-- **Short Description**: Banking Built Around You. Send money, pay bills, and manage virtual cards.
-- **Default Language**: English (United States)
+### Application Metadata
+- **Application Name**: PAYBACK: Digital Wallet & Payments
+- **Short Description**: Banking Built Around You. Instant Raast transfers, bill payments, and smart VISA card in Pakistan.
+- **Default Language**: English (Pakistan / US)
 - **Target Category**: Finance
 - **Content Rating**: Everyone (PEGI 3 / ESRB Everyone)
 - **Package ID**: `com.payback.mobile`
+- **Primary Market**: Pakistan
+- **Default Currency**: PKR (Pakistani Rupees)
 
 ---
 
-## Full Store Description (Copy & Paste Ready)
+### Google Play Store Listing (Copy & Paste Ready)
 
-```
-Welcome to PAYBACK — Banking Built Around You.
+```markdown
+PAYBACK — Banking Built Around You.
 
-PAYBACK is a next-generation digital financial ecosystem designed to give you complete freedom over your money. Experience instant money transfers, smart virtual debit cards, frictionless utility bill payments, and biometric security — all in one beautifully crafted mobile experience.
+PAYBACK is Pakistan's premier digital wallet and modern mobile financial services application. Engineered with an exquisite forest-green and lime aesthetic, PAYBACK gives you total freedom over your money with instant zero-fee Raast transfers, 1Link interbank payments, utility bill settlements, mobile packages, government challans, and virtual VISA cards.
 
 KEY FEATURES:
 
-✨ INSTANT MONEY TRANSFERS
-Send and receive money seamlessly across banks with zero hidden charges. Real-time settlement ensures your funds arrive instantly.
+✨ INSTANT RAAST & INTERBANK TRANSFERS
+Send money in seconds to any bank account in Pakistan, Raast ID, CNIC, or PAYBACK wallet with 0% transaction fee. Instant settlement powered by State Bank of Pakistan's Raast payment rails.
 
-💳 SMART VIRTUAL & PHYSICAL CARDS
-Freeze or unfreeze your card with one tap. View card credentials securely with biometric authorization, adjust daily spending limits, and change your PIN in real-time.
+💳 SMART VIRTUAL & PHYSICAL VISA CARDS
+Enjoy a contactless lime-green debit card designed for modern spending. Freeze or unfreeze your card with a single tap, adjust daily spending limits, and shop securely online.
 
-⚡ ONE-TAP BILL PAYMENTS
-Pay your electricity, water, gas, internet, and mobile phone bills in seconds. Keep track of due dates and avoid late payment fees.
+⚡ ONE-TAP UTILITY BILL PAYMENTS
+Pay electricity (LESCO, IESCO, K-Electric, MEPCO, PESCO), Sui gas (SNGPL, SSGC), water authorities (WASA), and high-speed internet (PTCL, StormFiber, Nayatel) with instant digital receipts.
 
-🔒 BANK-GRADE SECURITY
-Protected by hardware-backed biometric authentication (Fingerprint & Face ID), 256-bit encryption, and intelligent fraud monitoring.
+📱 MOBILE EASYLOAD & BUNDLES MARKETPLACE
+Recharge pre-paid airtime or pay post-paid bills for Jazz, Zong, Ufone, and Telenor. Subscribe to daily, weekly, and monthly 4G data, call, and hybrid packages with one click.
 
-📊 FINANCIAL ACTIVITY & SMART RECEIPTS
-Track every transaction with detailed receipts, categorized spending insights, and instant transaction notifications.
+🏛️ GOVERNMENT TAXES & CHALLAN PAYMENTS
+Clear your Federal Board of Revenue (FBR) taxes, e-Challans, and provincial vehicle token taxes directly through official 1Bill integration.
 
-PAYBACK — Smart Banking. Better Tomorrow.
-Download now and take control of your financial future.
+🌍 HOME REMITTANCE VIA SBP PRI
+Receive international money transfers from the UK, UAE, USA, and Europe (Western Union, MoneyGram, Ria) directly into your PAYBACK wallet with zero deduction.
+
+🔒 BIOMETRIC SECURITY & HARDWARE KEYSTORE
+Protected by hardware-backed fingerprint and Face ID authentication, 4-digit transaction MPIN, and TLS 1.3 end-to-end banking encryption.
+
+PAYBACK — Banking Built Around You.
+Download now and elevate your daily financial life.
 ```
 
 ---
 
-## Google Play Data Safety Declarations
+### Google Play Financial Services & Data Safety Declarations
 
-| Data Category | Purpose | Ephemeral / Stored | Encrypted in Transit |
-|---|---|---|---|
-| **Personal Info (Name, Email)** | Account management & authentication | Stored securely | Yes (HTTPS / TLS 1.3) |
-| **Financial Info (Account, Transactions)** | Payment processing & banking history | Stored securely | Yes (TLS 1.3) |
-| **App Activity** | Crash prevention & performance monitoring | Ephemeral | Yes |
-| **Device Identifiers** | Push notification & fraud prevention | Stored securely | Yes |
-
-*User can request account and data deletion at any time via Profile > Security Settings.*
+| Data Category | Specific Types Collected | Purpose | Ephemeral or Stored | Encryption |
+|---|---|---|---|---|
+| **Personal Information** | Name, Mobile Number, Email, Nadra CNIC | Account registration, KYC compliance, customer support | Stored securely in database | Encrypted in Transit (TLS 1.3) & at Rest (AES-256) |
+| **Financial Information** | Bank Account / IBAN, Transaction History, Card details (masked) | Payment processing, ledger reconciliation, regulatory reporting | Stored securely in double-entry ledger | Encrypted in Transit (TLS 1.3) & at Rest (AES-256) |
+| **Device & App Identifiers** | Push notification token, Device ID | Fraud prevention, security alerts, device session management | Stored securely | Encrypted in Transit & at Rest |
+| **Camera Access** | QR Camera Viewfinder | Scanning EMVCo Raast / 1Link merchant QR codes | Ephemeral (video stream is never recorded or uploaded) | Real-time on-device scanning |
 
 ---
 
-## EAS Production Commands
+### EAS Build & Release Instructions
 
-### 1. Build Installable Testing APK
+#### 1. Generate Standalone Testing APK
 ```bash
-cd payback-mobile
 npx eas-cli build -p android --profile preview
 ```
 
-### 2. Build Production Signed Google Play App Bundle (.aab)
+#### 2. Generate Production Signed Android App Bundle (.aab)
 ```bash
-cd payback-mobile
 npx eas-cli build -p android --profile production
 ```

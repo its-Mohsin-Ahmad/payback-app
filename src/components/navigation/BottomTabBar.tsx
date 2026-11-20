@@ -1,98 +1,191 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Colors } from '../../theme/colors';
-import { Home, CreditCard, ArrowLeftRight, User } from 'lucide-react-native';
+import { Home, CreditCard, QrCode, Clock, Search } from 'lucide-react-native';
 
-export type TabScreenType = 'home' | 'cards' | 'transactions' | 'profile';
+export type TabScreenType = 'home' | 'cards' | 'scan' | 'history' | 'search';
 
 interface BottomTabBarProps {
   currentTab: TabScreenType;
   onSelectTab: (tab: TabScreenType) => void;
+  onOpenScanner: () => void;
 }
 
-export const BottomTabBar: React.FC<BottomTabBarProps> = ({ currentTab, onSelectTab }) => {
-  const tabs = [
-    { id: 'home' as TabScreenType, label: 'Home', icon: Home },
-    { id: 'cards' as TabScreenType, label: 'Cards', icon: CreditCard },
-    { id: 'transactions' as TabScreenType, label: 'Transactions', icon: ArrowLeftRight },
-    { id: 'profile' as TabScreenType, label: 'Profile', icon: User },
-  ];
-
+export const BottomTabBar: React.FC<BottomTabBarProps> = ({
+  currentTab,
+  onSelectTab,
+  onOpenScanner,
+}) => {
   return (
-    <View style={styles.container}>
-      <View style={styles.tabBar}>
-        {tabs.map((tab) => {
-          const isActive = currentTab === tab.id;
-          const IconComponent = tab.icon;
-          return (
-            <TouchableOpacity
-              key={tab.id}
-              activeOpacity={0.8}
-              onPress={() => onSelectTab(tab.id)}
-              style={styles.tabButton}
-            >
-              <View style={[styles.iconBox, isActive && styles.activeIconBox]}>
-                <IconComponent
-                  size={22}
-                  color={isActive ? Colors.electricBlue : Colors.secondaryText}
-                  strokeWidth={isActive ? 2.5 : 2}
-                />
-              </View>
-              <Text
-                style={[
-                  styles.tabLabel,
-                  { color: isActive ? Colors.electricBlue : Colors.secondaryText },
-                  isActive && styles.activeTabLabel,
-                ]}
-              >
-                {tab.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+    <View style={styles.floatingWrapper}>
+      <View style={styles.barSurface}>
+        {/* 1. HOME */}
+        <TouchableOpacity
+          style={styles.tabItem}
+          activeOpacity={0.85}
+          onPress={() => onSelectTab('home')}
+        >
+          <View style={[styles.iconContainer, currentTab === 'home' && styles.activeIndicator]}>
+            <Home
+              size={22}
+              color={Colors.darkForest}
+              strokeWidth={currentTab === 'home' ? 2.8 : 2}
+            />
+          </View>
+          <Text style={[styles.tabLabel, currentTab === 'home' && styles.activeTabLabel]}>
+            Home
+          </Text>
+        </TouchableOpacity>
+
+        {/* 2. CARDS */}
+        <TouchableOpacity
+          style={styles.tabItem}
+          activeOpacity={0.85}
+          onPress={() => onSelectTab('cards')}
+        >
+          <View style={[styles.iconContainer, currentTab === 'cards' && styles.activeIndicator]}>
+            <CreditCard
+              size={22}
+              color={Colors.darkForest}
+              strokeWidth={currentTab === 'cards' ? 2.8 : 2}
+            />
+          </View>
+          <Text style={[styles.tabLabel, currentTab === 'cards' && styles.activeTabLabel]}>
+            Cards
+          </Text>
+        </TouchableOpacity>
+
+        {/* 3. CENTER QR SCANNER BUTTON (Elevated & Prominent as per reference image) */}
+        <View style={styles.centerButtonAnchor}>
+          <TouchableOpacity
+            style={styles.centerButton}
+            activeOpacity={0.9}
+            onPress={onOpenScanner}
+          >
+            <View style={styles.centerButtonInner}>
+              <QrCode size={26} color={Colors.brightLime} strokeWidth={2.4} />
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* 4. HISTORY */}
+        <TouchableOpacity
+          style={styles.tabItem}
+          activeOpacity={0.85}
+          onPress={() => onSelectTab('history')}
+        >
+          <View style={[styles.iconContainer, currentTab === 'history' && styles.activeIndicator]}>
+            <Clock
+              size={22}
+              color={Colors.darkForest}
+              strokeWidth={currentTab === 'history' ? 2.8 : 2}
+            />
+          </View>
+          <Text style={[styles.tabLabel, currentTab === 'history' && styles.activeTabLabel]}>
+            History
+          </Text>
+        </TouchableOpacity>
+
+        {/* 5. SEARCH */}
+        <TouchableOpacity
+          style={styles.tabItem}
+          activeOpacity={0.85}
+          onPress={() => onSelectTab('search')}
+        >
+          <View style={[styles.iconContainer, currentTab === 'search' && styles.activeIndicator]}>
+            <Search
+              size={22}
+              color={Colors.darkForest}
+              strokeWidth={currentTab === 'search' ? 2.8 : 2}
+            />
+          </View>
+          <Text style={[styles.tabLabel, currentTab === 'search' && styles.activeTabLabel]}>
+            Search
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#EEF2F6',
-    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
-    paddingTop: 8,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 8,
+  floatingWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 0,
+    backgroundColor: 'transparent',
   },
-  tabBar: {
+  barSurface: {
+    backgroundColor: Colors.primaryLime,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
     flexDirection: 'row',
-    justifyContent: 'space-around',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    justifyContent: 'space-around',
+    paddingTop: 10,
+    paddingBottom: Platform.OS === 'ios' ? 28 : 14,
+    paddingHorizontal: 8,
+    shadowColor: Colors.brightLime,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 12,
   },
-  tabButton: {
+  tabItem: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 4,
-    flex: 1,
   },
-  iconBox: {
+  iconContainer: {
     padding: 4,
     borderRadius: 12,
-    marginBottom: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  activeIconBox: {
-    backgroundColor: 'rgba(8, 120, 249, 0.08)',
+  activeIndicator: {
+    backgroundColor: 'rgba(16, 32, 0, 0.12)',
   },
   tabLabel: {
     fontSize: 11,
-    fontWeight: '500',
+    fontWeight: '600',
+    color: Colors.darkForest,
+    marginTop: 2,
+    opacity: 0.8,
   },
   activeTabLabel: {
-    fontWeight: '700',
+    fontWeight: '800',
+    opacity: 1,
+  },
+  centerButtonAnchor: {
+    top: -20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 68,
+  },
+  centerButton: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    backgroundColor: Colors.primaryLime,
+    padding: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.darkForest,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  centerButtonInner: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: Colors.darkForest,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: Colors.borderLime,
   },
 });
